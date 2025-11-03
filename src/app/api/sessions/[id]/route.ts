@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { broadcastToSession } from "@/lib/sse";
+import { SessionStatus } from "@prisma/client";
 
 type Params = {
   params: Promise<{
@@ -63,10 +64,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       }
 
       const updateData: {
-        status: string;
+        status: SessionStatus;
         startedAt?: Date;
         endedAt?: Date;
-      } = { status };
+      } = { status: status as SessionStatus };
 
       if (status === "IN_PROGRESS") {
         updateData.startedAt = new Date();
