@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # MongoDB Database for Development (with replica set for transactions, no auth for simplicity)
+  mongodb:
+    image: mongo:latest
+    container_name: kuiz-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - kuiz-dev-network
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+
+networks:
+  kuiz-dev-network:
+    driver: bridge

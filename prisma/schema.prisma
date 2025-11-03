@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// User model for creators only (participants don't need accounts)
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  name          String?
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  templates     Template[]
+  sessions      Session[]
+  accounts      Account[]
+  
+  @@map("users")
+}
+
+// NextAuth Account model
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Quiz Template model
+model Template {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  category    String
+  creatorId   String       @db.ObjectId
+  isPublic    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  creator     User         @relation(fields: [creatorId], references: [id])
+  questions   Question[]
+  sessions    Session[]
+  
+  @@map("templates")
+}
+
+// Question model
+model Question {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  templateId  String       @db.ObjectId
+  type        QuestionType
+  text        String
+  imageUrl    String?
+  options     String[]     // JSON array of options
+  correctAnswer String     // For radio/checkbox types
+  order       Int
+  points      Int          @default(10)
+  timeLimit   Int?         // Time limit in seconds
+  
+  // Relations
+  template    Template     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  responses   Response[]
+  
+  @@map("questions")
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE  // Radio buttons
+  CHECKBOX         // Multiple selections
+  TRUE_FALSE
+  IMAGE_CHOICE     // Multiple choice with images
+  TEXT_INPUT
+}
+
+// Quiz Session model (when someone joins with a code)
+model Session {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  code              String       @unique // 6-digit code
+  templateId        String       @db.ObjectId
+  hostId            String       @db.ObjectId
+  status            SessionStatus @default(WAITING)
+  mode              SessionMode   @default(FREE_PLAY) // How questions are presented
+  currentQuestionId String?      @db.ObjectId // For host-controlled mode
+  startedAt         DateTime?
+  endedAt           DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  
+  // Relations
+  template    Template     @relation(fields: [templateId], references: [id])
+  host        User         @relation(fields: [hostId], references: [id])
+  participants Participant[]
+  responses   Response[]
+  
+  @@map("sessions")
+}
+
+enum SessionStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SessionMode {
+  FREE_PLAY        // Participants can navigate freely
+  HOST_CONTROLLED  // Host controls which question participants see
+}
+
+// Participant in a session (anonymous - no account needed)
+model Participant {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId   String    @db.ObjectId
+  name        String    // Just a display name, no authentication
+  score       Int       @default(0)
+  joinedAt    DateTime  @default(now())
+  
+  // Relations
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  responses   Response[]
+  
+  @@map("participants")
+}
+
+// Response model for tracking answers
+model Response {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId     String      @db.ObjectId
+  questionId    String      @db.ObjectId
+  participantId String      @db.ObjectId
+  answer        String      // The answer submitted
+  isCorrect     Boolean
+  points        Int         @default(0)
+  answeredAt    DateTime    @default(now())
+  
+  // Relations
+  session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question      Question    @relation(fields: [questionId], references: [id])
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  
+  @@map("responses")
+}
