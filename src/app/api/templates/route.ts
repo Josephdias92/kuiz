@@ -47,6 +47,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createTemplateSchema.parse(body);
 
+    // Only admin users can create public templates
+    if (validatedData.isPublic && !session.user.isAdmin) {
+      return NextResponse.json(
+        { error: "Only admin users can create public templates" },
+        { status: 403 }
+      );
+    }
+
     const template = await prisma.template.create({
       data: {
         ...validatedData,

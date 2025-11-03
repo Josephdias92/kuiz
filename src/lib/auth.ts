@@ -19,6 +19,7 @@ export const authConfig: NextAuthConfig = {
     signIn: "/auth/signin",
     newUser: "/auth/signup",
   },
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -53,6 +54,8 @@ export const authConfig: NextAuthConfig = {
           id: user.id,
           email: user.email,
           name: user.name,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          isAdmin: (user as any).isAdmin || false,
         };
       },
     }),
@@ -61,12 +64,15 @@ export const authConfig: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        token.isAdmin = (user as any).isAdmin || false;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.isAdmin = (token.isAdmin as boolean) || false;
       }
       return session;
     },

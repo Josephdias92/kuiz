@@ -1,0 +1,71 @@
+{
+  "title": "Movie Trivia Challenge",
+  "description": "How well do you know famous movies?",
+  "category": "Entertainment",
+  "isPublic": true,
+  "questions": [
+    {
+      "text": "Who directed the movie 'Inception'?",
+      "type": "MULTIPLE_CHOICE",
+      "options": [
+        "Steven Spielberg",
+        "Christopher Nolan",
+        "Martin Scorsese",
+        "Quentin Tarantino"
+      ],
+      "correctAnswer": "Christopher Nolan",
+      "points": 10,
+      "timeLimit": 20
+    },
+    {
+      "text": "What year was the first 'Star Wars' movie released?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["1975", "1977", "1979", "1980"],
+      "correctAnswer": "1977",
+      "points": 10,
+      "timeLimit": 20
+    },
+    {
+      "text": "The movie 'Titanic' won 11 Academy Awards.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "True",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "Which actor played Iron Man in the Marvel Cinematic Universe?",
+      "type": "MULTIPLE_CHOICE",
+      "options": [
+        "Chris Evans",
+        "Robert Downey Jr.",
+        "Chris Hemsworth",
+        "Mark Ruffalo"
+      ],
+      "correctAnswer": "Robert Downey Jr.",
+      "points": 5,
+      "timeLimit": 15
+    },
+    {
+      "text": "What is the highest-grossing film of all time (unadjusted for inflation)?",
+      "type": "MULTIPLE_CHOICE",
+      "options": [
+        "Avengers: Endgame",
+        "Avatar",
+        "Titanic",
+        "Star Wars: The Force Awakens"
+      ],
+      "correctAnswer": "Avatar",
+      "points": 15,
+      "timeLimit": 20
+    },
+    {
+      "text": "The movie 'The Shawshank Redemption' was based on a Stephen King novel.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "True",
+      "points": 10,
+      "timeLimit": 15
+    }
+  ]
+}

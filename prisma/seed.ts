@@ -127,7 +127,15 @@ async function main() {
     });
     console.log("✅ Created demo user:", user.email);
   } else {
-    console.log("✅ Demo user already exists:", user.email);
+    // Update the password to ensure it's correct
+    user = await prisma.user.update({
+      where: { email: "demo@kuiz.app" },
+      data: { password: hashedPassword },
+    });
+    console.log(
+      "✅ Demo user already exists and password updated:",
+      user.email
+    );
   }
 
   // Create Flag Quiz Template

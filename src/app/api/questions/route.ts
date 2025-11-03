@@ -43,3 +43,51 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Question ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const question = await prisma.question.findUnique({
+      where: { id },
+      include: { template: true },
+    });
+
+    if (!question) {
+      return NextResponse.json(
+        { error: "Question not found" },
+        { status: 404 }
+      );
+    }
+
+    if (question.template.creatorId !== session.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    await prisma.question.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: "Question deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting question:", error);
+    return NextResponse.json(
+      { error: "Failed to delete question" },
+      { status: 500 }
+    );
+  }
+}

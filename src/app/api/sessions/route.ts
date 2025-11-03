@@ -42,6 +42,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate questionCount
+    const questionCount = validatedData.questionCount;
+    if (questionCount && questionCount > template.questions.length) {
+      return NextResponse.json(
+        {
+          error: `Question count (${questionCount}) cannot exceed template questions (${template.questions.length})`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Randomly select questions if questionCount is specified
+    let selectedQuestionIds: string[] = [];
+    if (questionCount) {
+      // Shuffle and select random questions
+      const shuffled = [...template.questions].sort(() => Math.random() - 0.5);
+      selectedQuestionIds = shuffled.slice(0, questionCount).map((q) => q.id);
+    } else {
+      // Use all questions
+      selectedQuestionIds = template.questions.map((q) => q.id);
+    }
+
     // Generate unique code
     let code = generateSessionCode();
     let existing = await prisma.session.findUnique({ where: { code } });
@@ -58,6 +80,8 @@ export async function POST(request: NextRequest) {
         hostId: session.user.id,
         status: "WAITING",
         mode: validatedData.mode,
+        questionCount: questionCount || null,
+        selectedQuestionIds,
       },
       include: {
         template: {

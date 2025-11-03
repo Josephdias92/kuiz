@@ -1,0 +1,82 @@
+{
+  "title": "Programming Basics Quiz",
+  "description": "Test your knowledge of fundamental programming concepts",
+  "category": "Technology",
+  "isPublic": true,
+  "questions": [
+    {
+      "text": "What does HTML stand for?",
+      "type": "MULTIPLE_CHOICE",
+      "options": [
+        "Hyper Text Markup Language",
+        "High Tech Modern Language",
+        "Home Tool Markup Language",
+        "Hyperlinks and Text Markup Language"
+      ],
+      "correctAnswer": "Hyper Text Markup Language",
+      "points": 10,
+      "timeLimit": 20
+    },
+    {
+      "text": "Which of these is a programming language?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["HTML", "CSS", "Python", "XML"],
+      "correctAnswer": "Python",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "JavaScript and Java are the same language.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "False",
+      "points": 10,
+      "timeLimit": 10
+    },
+    {
+      "text": "What does CSS stand for?",
+      "type": "MULTIPLE_CHOICE",
+      "options": [
+        "Computer Style Sheets",
+        "Cascading Style Sheets",
+        "Creative Style Sheets",
+        "Colorful Style Sheets"
+      ],
+      "correctAnswer": "Cascading Style Sheets",
+      "points": 10,
+      "timeLimit": 20
+    },
+    {
+      "text": "Which symbol is used for comments in Python?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["//", "#", "/*", "<!--"],
+      "correctAnswer": "#",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "Git is a version control system.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "True",
+      "points": 5,
+      "timeLimit": 10
+    },
+    {
+      "text": "What is the output of 5 + 3 * 2 in most programming languages?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["16", "11", "13", "10"],
+      "correctAnswer": "11",
+      "points": 15,
+      "timeLimit": 20
+    },
+    {
+      "text": "An array index typically starts at 1 in most programming languages.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "False",
+      "points": 10,
+      "timeLimit": 15
+    }
+  ]
+}

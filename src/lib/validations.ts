@@ -48,6 +48,7 @@ export const createQuestionSchema = questionSchema.extend({
 export const createSessionSchema = z.object({
   templateId: z.string(),
   mode: z.enum(["FREE_PLAY", "HOST_CONTROLLED"]).default("FREE_PLAY"),
+  questionCount: z.number().int().positive().optional(), // Number of random questions to select
 });
 
 export const joinSessionSchema = z.object({

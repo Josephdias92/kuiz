@@ -17,9 +17,13 @@ interface Question {
 
 interface TemplateBuilderProps {
   userId: string;
+  isAdmin: boolean;
 }
 
-export default function TemplateBuilder({ userId }: TemplateBuilderProps) {
+export default function TemplateBuilder({
+  userId,
+  isAdmin,
+}: TemplateBuilderProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -28,7 +32,7 @@ export default function TemplateBuilder({ userId }: TemplateBuilderProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
+  const [isPublic, setIsPublic] = useState(false);
 
   // Questions
   const [questions, setQuestions] = useState<Question[]>([
@@ -269,21 +273,23 @@ export default function TemplateBuilder({ userId }: TemplateBuilderProps) {
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isPublic"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-            />
-            <label
-              htmlFor="isPublic"
-              className="text-sm font-medium text-gray-700"
-            >
-              Make this template public (others can use it)
-            </label>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isPublic"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="isPublic"
+                className="text-sm font-medium text-gray-700"
+              >
+                Make this template public (others can use it)
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Questions */}

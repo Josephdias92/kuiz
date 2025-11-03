@@ -73,6 +73,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    // Only admin users can set templates to public
+    if (validatedData.isPublic && !session.user.isAdmin) {
+      return NextResponse.json(
+        { error: "Only admin users can create public templates" },
+        { status: 403 }
+      );
+    }
+
     const updatedTemplate = await prisma.template.update({
       where: { id },
       data: validatedData,

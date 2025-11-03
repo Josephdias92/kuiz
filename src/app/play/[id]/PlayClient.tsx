@@ -368,270 +368,374 @@ export default function PlayClient({ session: initialSession }: Props) {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          {/* Progress Bar */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-              <span>Progress</span>
-              <span>
-                {answeredQuestions.size} / {session.template.questions.length}{" "}
-                answered
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${
-                    (answeredQuestions.size /
-                      session.template.questions.length) *
-                    100
-                  }%`,
-                }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Question Card */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-            {answeredQuestions.has(currentQuestion.id) && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 text-sm font-medium">
-                  ✓ You have already answered this question
+          {/* Waiting Room - Show when session hasn't started */}
+          {session.status === "WAITING" && (
+            <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+              <div className="mb-6">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-5xl">⏳</span>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                  Waiting Room
+                </h2>
+                <p className="text-lg text-gray-600 mb-6">
+                  The quiz hasn&apos;t started yet. Please wait for the host to
+                  begin.
                 </p>
               </div>
-            )}
 
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
-                  {currentQuestion.type.replace(/_/g, " ")}
-                </span>
-                <div className="flex items-center gap-3">
-                  {timeLeft !== null && (
-                    <div
-                      className={`flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-sm ${
-                        timeLeft <= 10
-                          ? "bg-red-100 text-red-700 animate-pulse"
-                          : timeLeft <= 30
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      <span>⏱️</span>
-                      <span>{timeLeft}s</span>
-                    </div>
-                  )}
-                  <span className="text-sm text-gray-600">
-                    {currentQuestion.points} points
-                  </span>
-                </div>
-              </div>
-
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {currentQuestion.text}
-              </h2>
-
-              {currentQuestion.imageUrl && (
-                <div className="mb-6">
-                  <img
-                    src={currentQuestion.imageUrl}
-                    alt="Question"
-                    className="max-w-md mx-auto rounded-lg shadow-md"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Answer Options */}
-            {!showResult ? (
-              <div className="space-y-3 mb-6">
-                {currentQuestion.options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedAnswer(option)}
-                    disabled={
-                      submitting ||
-                      session.status === "CANCELLED" ||
-                      session.status === "COMPLETED"
-                    }
-                    className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
-                      selectedAnswer === option
-                        ? "border-purple-500 bg-purple-50"
-                        : "border-gray-200 hover:border-purple-300"
-                    } ${
-                      submitting ||
-                      session.status === "CANCELLED" ||
-                      session.status === "COMPLETED"
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
-                          selectedAnswer === option
-                            ? "border-purple-500 bg-purple-500"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {selectedAnswer === option && (
-                          <div className="w-3 h-3 bg-white rounded-full"></div>
-                        )}
-                      </div>
-                      <span className="font-medium">{option}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="mb-6">
-                <div
-                  className={`p-6 rounded-lg ${
-                    timerExpired
-                      ? "bg-orange-50 border-2 border-orange-200"
-                      : isCorrect
-                      ? "bg-green-50 border-2 border-green-200"
-                      : "bg-red-50 border-2 border-red-200"
-                  }`}
-                >
-                  <p
-                    className={`text-lg font-bold mb-2 ${
-                      timerExpired
-                        ? "text-orange-800"
-                        : isCorrect
-                        ? "text-green-800"
-                        : "text-red-800"
-                    }`}
-                  >
-                    {timerExpired
-                      ? "⏰ Time Expired!"
-                      : isCorrect
-                      ? "✅ Correct!"
-                      : "❌ Incorrect"}
-                  </p>
-                  {timerExpired && (
-                    <p className="text-gray-700">
-                      Time ran out! The correct answer was:{" "}
-                      <span className="font-bold">{correctAnswer}</span>
-                    </p>
-                  )}
-                  {!isCorrect && !timerExpired && (
-                    <p className="text-gray-700">
-                      The correct answer was:{" "}
-                      <span className="font-bold">{correctAnswer}</span>
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Action Button */}
-            {!showResult ? (
-              <>
-                <button
-                  onClick={handleSubmitAnswer}
-                  disabled={
-                    !selectedAnswer ||
-                    submitting ||
-                    answeredQuestions.has(currentQuestion.id) ||
-                    timerExpired ||
-                    session.status === "CANCELLED" ||
-                    session.status === "COMPLETED"
-                  }
-                  className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  {session.status === "CANCELLED"
-                    ? "Session Cancelled"
-                    : session.status === "COMPLETED"
-                    ? "Session Ended"
-                    : submitting
-                    ? "Submitting..."
-                    : timerExpired
-                    ? "Time Expired"
-                    : answeredQuestions.has(currentQuestion.id)
-                    ? "Already Answered"
-                    : "Submit Answer"}
-                </button>
-                {timerExpired && (
-                  <p className="text-center text-sm text-red-600 mt-2">
-                    You ran out of time for this question (0 points)
-                  </p>
-                )}
-                {(session.status === "CANCELLED" ||
-                  session.status === "COMPLETED") && (
-                  <p className="text-center text-sm text-red-600 mt-2">
-                    {session.status === "CANCELLED"
-                      ? "This session has been cancelled. No more answers can be submitted."
-                      : "This session has ended. No more answers can be submitted."}
-                  </p>
-                )}
-              </>
-            ) : (
-              <div>
-                {session.mode === "HOST_CONTROLLED" ? (
-                  <div className="text-center">
-                    <div className="w-full px-6 py-4 bg-purple-100 border-2 border-purple-300 text-purple-800 font-semibold rounded-lg mb-2">
-                      ⏳ Waiting for host to move to next question...
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      The host will advance everyone to the next question
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
+                <div className="grid md:grid-cols-2 gap-4 text-left">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Quiz</p>
+                    <p className="font-bold text-gray-900">
+                      {session.template.title}
                     </p>
                   </div>
-                ) : (
-                  <button
-                    onClick={handleNextQuestion}
-                    disabled={
-                      session.status === "CANCELLED" ||
-                      session.status === "COMPLETED"
-                    }
-                    className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    {isLastQuestion ? "View Results" : "Next Question →"}
-                  </button>
-                )}
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Join Code</p>
+                    <p className="font-mono font-bold text-purple-600">
+                      {session.code}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Your Name</p>
+                    <p className="font-bold text-gray-900">{participantName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Total Questions
+                    </p>
+                    <p className="font-bold text-gray-900">
+                      {session.template.questions.length}
+                    </p>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Leaderboard - Only shown on completion */}
-          {session.status === "COMPLETED" &&
-            session.participants.length > 0 && (
-              <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  🏆 Final Standings
+              {/* Participants List */}
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                  👥 Participants ({session.participants.length})
                 </h3>
-                <div className="space-y-2">
-                  {session.participants.map((participant, index) => (
-                    <div
-                      key={participant.id}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        participant.id === participantId
-                          ? "bg-purple-50"
-                          : "bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-gray-400">
-                          #{index + 1}
-                        </span>
-                        <span
-                          className={`font-medium ${
+                <div className="max-h-48 overflow-y-auto">
+                  {session.participants.length === 0 ? (
+                    <p className="text-gray-500 text-sm">
+                      No participants yet...
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {session.participants.map((participant) => (
+                        <div
+                          key={participant.id}
+                          className={`px-3 py-2 rounded-lg text-sm font-medium ${
                             participant.id === participantId
-                              ? "text-purple-700"
-                              : "text-gray-900"
+                              ? "bg-purple-100 text-purple-800 border-2 border-purple-300"
+                              : "bg-gray-100 text-gray-700"
                           }`}
                         >
                           {participant.name}
-                        </span>
-                      </div>
-                      <span className="font-bold text-purple-600">
-                        {participant.score}
-                      </span>
+                          {participant.id === participantId && " (You)"}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
-            )}
+
+              <div className="flex items-center justify-center gap-2 text-blue-600">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <p className="text-sm font-medium">
+                  Waiting for host to start the quiz...
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Quiz Content - Show only when session is IN_PROGRESS */}
+          {session.status !== "WAITING" && (
+            <>
+              {/* Progress Bar */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                  <span>Progress</span>
+                  <span>
+                    {answeredQuestions.size} /{" "}
+                    {session.template.questions.length} answered
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${
+                        (answeredQuestions.size /
+                          session.template.questions.length) *
+                        100
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Question Card */}
+              <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+                      {currentQuestion.type.replace(/_/g, " ")}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      {timeLeft !== null && (
+                        <div
+                          className={`flex items-center gap-2 px-3 py-1 rounded-full font-semibold text-sm ${
+                            timeLeft <= 10
+                              ? "bg-red-100 text-red-700 animate-pulse"
+                              : timeLeft <= 30
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          <span>⏱️</span>
+                          <span>{timeLeft}s</span>
+                        </div>
+                      )}
+                      <span className="text-sm text-gray-600">
+                        {currentQuestion.points} points
+                      </span>
+                    </div>
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    {currentQuestion.text}
+                  </h2>
+
+                  {currentQuestion.imageUrl && (
+                    <div className="mb-6">
+                      <img
+                        src={currentQuestion.imageUrl}
+                        alt="Question"
+                        className="max-w-md mx-auto rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Answer Options */}
+                <div className="space-y-3 mb-6">
+                  {currentQuestion.options.map((option, index) => {
+                    const isSelectedAnswer = selectedAnswer === option;
+                    const isCorrectAnswer =
+                      showResult && correctAnswer === option;
+                    const isWrongAnswer =
+                      showResult && isSelectedAnswer && !isCorrect;
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => !showResult && setSelectedAnswer(option)}
+                        disabled={
+                          showResult ||
+                          submitting ||
+                          session.status === "CANCELLED" ||
+                          session.status === "COMPLETED"
+                        }
+                        className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                          isCorrectAnswer
+                            ? "border-green-500 bg-green-50"
+                            : isWrongAnswer
+                            ? "border-red-500 bg-red-50"
+                            : isSelectedAnswer && !showResult
+                            ? "border-purple-500 bg-purple-50"
+                            : "border-gray-200 hover:border-purple-300"
+                        } ${
+                          showResult ||
+                          submitting ||
+                          session.status === "CANCELLED" ||
+                          session.status === "COMPLETED"
+                            ? "cursor-default"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div
+                              className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center ${
+                                isCorrectAnswer
+                                  ? "border-green-500 bg-green-500"
+                                  : isWrongAnswer
+                                  ? "border-red-500 bg-red-500"
+                                  : isSelectedAnswer && !showResult
+                                  ? "border-purple-500 bg-purple-500"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {(isSelectedAnswer || isCorrectAnswer) && (
+                                <div className="w-3 h-3 bg-white rounded-full"></div>
+                              )}
+                            </div>
+                            <span
+                              className={`font-medium ${
+                                isCorrectAnswer
+                                  ? "text-green-800"
+                                  : isWrongAnswer
+                                  ? "text-red-800"
+                                  : ""
+                              }`}
+                            >
+                              {option}
+                            </span>
+                          </div>
+                          {showResult && (
+                            <span className="text-lg font-bold">
+                              {isCorrectAnswer && "✅"}
+                              {isWrongAnswer && "❌"}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Result Message */}
+                {showResult && (
+                  <div
+                    className={`p-4 rounded-lg mb-6 ${
+                      timerExpired
+                        ? "bg-orange-50 border-2 border-orange-200"
+                        : isCorrect
+                        ? "bg-green-50 border-2 border-green-200"
+                        : "bg-red-50 border-2 border-red-200"
+                    }`}
+                  >
+                    <p
+                      className={`text-lg font-bold text-center ${
+                        timerExpired
+                          ? "text-orange-800"
+                          : isCorrect
+                          ? "text-green-800"
+                          : "text-red-800"
+                      }`}
+                    >
+                      {timerExpired
+                        ? "⏰ Time Expired!"
+                        : isCorrect
+                        ? "✅ Correct!"
+                        : "❌ Incorrect"}
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Button */}
+                {!showResult ? (
+                  <>
+                    <button
+                      onClick={handleSubmitAnswer}
+                      disabled={
+                        !selectedAnswer ||
+                        submitting ||
+                        answeredQuestions.has(currentQuestion.id) ||
+                        timerExpired ||
+                        session.status === "CANCELLED" ||
+                        session.status === "COMPLETED"
+                      }
+                      className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {session.status === "CANCELLED"
+                        ? "Session Cancelled"
+                        : session.status === "COMPLETED"
+                        ? "Session Ended"
+                        : submitting
+                        ? "Submitting..."
+                        : timerExpired
+                        ? "Time Expired"
+                        : answeredQuestions.has(currentQuestion.id)
+                        ? "Already Answered"
+                        : "Submit Answer"}
+                    </button>
+                    {timerExpired && (
+                      <p className="text-center text-sm text-red-600 mt-2">
+                        You ran out of time for this question (0 points)
+                      </p>
+                    )}
+                    {(session.status === "CANCELLED" ||
+                      session.status === "COMPLETED") && (
+                      <p className="text-center text-sm text-red-600 mt-2">
+                        {session.status === "CANCELLED"
+                          ? "This session has been cancelled. No more answers can be submitted."
+                          : "This session has ended. No more answers can be submitted."}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    {session.mode === "HOST_CONTROLLED" ? (
+                      <div className="text-center">
+                        <div className="w-full px-6 py-4 bg-purple-100 border-2 border-purple-300 text-purple-800 font-semibold rounded-lg mb-2">
+                          ⏳ Waiting for host to move to next question...
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          The host will advance everyone to the next question
+                        </p>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleNextQuestion}
+                        disabled={
+                          session.status === "CANCELLED" ||
+                          session.status === "COMPLETED"
+                        }
+                        className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      >
+                        {isLastQuestion ? "View Results" : "Next Question →"}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Leaderboard - Only shown on completion */}
+              {session.status === "COMPLETED" &&
+                session.participants.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-md p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      🏆 Final Standings
+                    </h3>
+                    <div className="space-y-2">
+                      {session.participants.map((participant, index) => (
+                        <div
+                          key={participant.id}
+                          className={`flex items-center justify-between p-3 rounded-lg ${
+                            participant.id === participantId
+                              ? "bg-purple-50"
+                              : "bg-gray-50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-lg font-bold text-gray-400">
+                              #{index + 1}
+                            </span>
+                            <span
+                              className={`font-medium ${
+                                participant.id === participantId
+                                  ? "text-purple-700"
+                                  : "text-gray-900"
+                              }`}
+                            >
+                              {participant.name}
+                            </span>
+                          </div>
+                          <span className="font-bold text-purple-600">
+                            {participant.score}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+            </>
+          )}
         </div>
       </main>
     </div>

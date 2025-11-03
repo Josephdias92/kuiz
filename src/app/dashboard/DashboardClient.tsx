@@ -55,9 +55,17 @@ export default function DashboardClient({
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
     null
   );
+  const [selectedMode, setSelectedMode] = useState<
+    "FREE_PLAY" | "HOST_CONTROLLED"
+  >("FREE_PLAY");
+  const [questionCount, setQuestionCount] = useState<number | null>(null);
+  const [customQuestionCount, setCustomQuestionCount] = useState<string>("");
 
   const handleShowModeSelection = (templateId: string) => {
     setSelectedTemplateId(templateId);
+    setSelectedMode("FREE_PLAY");
+    setQuestionCount(null);
+    setCustomQuestionCount("");
     setShowModeModal(true);
   };
 
@@ -68,13 +76,24 @@ export default function DashboardClient({
     setShowModeModal(false);
 
     try {
+      const body: {
+        templateId: string;
+        mode: string;
+        questionCount?: number;
+      } = {
+        templateId: selectedTemplateId,
+        mode,
+      };
+
+      // Add questionCount only if specified
+      if (questionCount !== null) {
+        body.questionCount = questionCount;
+      }
+
       const response = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          templateId: selectedTemplateId,
-          mode,
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -90,6 +109,8 @@ export default function DashboardClient({
     } finally {
       setCreatingSession(null);
       setSelectedTemplateId(null);
+      setQuestionCount(null);
+      setCustomQuestionCount("");
     }
   };
 
@@ -112,12 +133,20 @@ export default function DashboardClient({
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Your Templates</h2>
-          <Link
-            href="/dashboard/templates/new"
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all"
-          >
-            + New Template
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href="/dashboard/templates/import"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all"
+            >
+              📥 Import
+            </Link>
+            <Link
+              href="/dashboard/templates/new"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all"
+            >
+              + New Template
+            </Link>
+          </div>
         </div>
 
         {templates.length === 0 ? (
@@ -357,17 +386,26 @@ export default function DashboardClient({
             <div className="grid md:grid-cols-2 gap-4 mb-6">
               {/* Free Play Mode */}
               <button
-                onClick={() => handleStartSession("FREE_PLAY")}
+                onClick={() => setSelectedMode("FREE_PLAY")}
                 disabled={creatingSession !== null}
-                className="p-6 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left group"
+                className={`p-6 border-2 rounded-xl transition-all text-left group ${
+                  selectedMode === "FREE_PLAY"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
+                }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-blue-200 transition-all">
                     🎮
                   </div>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                    Self-Paced
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {selectedMode === "FREE_PLAY" && (
+                      <span className="text-blue-600 text-xl">✓</span>
+                    )}
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                      Self-Paced
+                    </span>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Free Play
@@ -385,17 +423,26 @@ export default function DashboardClient({
 
               {/* Host Controlled Mode */}
               <button
-                onClick={() => handleStartSession("HOST_CONTROLLED")}
+                onClick={() => setSelectedMode("HOST_CONTROLLED")}
                 disabled={creatingSession !== null}
-                className="p-6 border-2 border-gray-200 rounded-xl hover:border-purple-500 hover:bg-purple-50 transition-all text-left group"
+                className={`p-6 border-2 rounded-xl transition-all text-left group ${
+                  selectedMode === "HOST_CONTROLLED"
+                    ? "border-purple-500 bg-purple-50"
+                    : "border-gray-200 hover:border-purple-500 hover:bg-purple-50"
+                }`}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-2xl group-hover:bg-purple-200 transition-all">
                     🎯
                   </div>
-                  <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
-                    Synchronized
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {selectedMode === "HOST_CONTROLLED" && (
+                      <span className="text-purple-600 text-xl">✓</span>
+                    )}
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                      Synchronized
+                    </span>
+                  </div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Host Controlled
@@ -412,16 +459,128 @@ export default function DashboardClient({
               </button>
             </div>
 
+            {/* Question Count Selection */}
+            {selectedTemplateId && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                  🎲 Number of Questions
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Total available:{" "}
+                  <span className="font-semibold">
+                    {
+                      [...templates, ...publicTemplates].find(
+                        (t) => t.id === selectedTemplateId
+                      )?._count.questions
+                    }{" "}
+                    questions
+                  </span>
+                </p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                  <button
+                    onClick={() => {
+                      setQuestionCount(null);
+                      setCustomQuestionCount("");
+                    }}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      questionCount === null
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-400"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {[20, 30, 50].map((count) => {
+                    const totalQuestions =
+                      [...templates, ...publicTemplates].find(
+                        (t) => t.id === selectedTemplateId
+                      )?._count.questions || 0;
+                    const disabled = count > totalQuestions;
+
+                    return (
+                      <button
+                        key={count}
+                        onClick={() => {
+                          if (!disabled) {
+                            setQuestionCount(count);
+                            setCustomQuestionCount("");
+                          }
+                        }}
+                        disabled={disabled}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          questionCount === count
+                            ? "bg-blue-600 text-white"
+                            : disabled
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-white border-2 border-gray-300 text-gray-700 hover:border-blue-400"
+                        }`}
+                      >
+                        {count}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    min="1"
+                    max={
+                      [...templates, ...publicTemplates].find(
+                        (t) => t.id === selectedTemplateId
+                      )?._count.questions
+                    }
+                    value={customQuestionCount}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setCustomQuestionCount(value);
+                      if (value && !isNaN(parseInt(value))) {
+                        setQuestionCount(parseInt(value));
+                      }
+                    }}
+                    placeholder="Custom amount"
+                    className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      setQuestionCount(null);
+                      setCustomQuestionCount("");
+                    }}
+                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {questionCount !== null && (
+                  <p className="text-sm text-blue-600 mt-2">
+                    ✓ Will randomly select {questionCount} questions
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 onClick={() => {
                   setShowModeModal(false);
                   setSelectedTemplateId(null);
+                  setSelectedMode("FREE_PLAY");
+                  setQuestionCount(null);
+                  setCustomQuestionCount("");
                 }}
                 disabled={creatingSession !== null}
                 className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
               >
                 Cancel
+              </button>
+              <button
+                onClick={() => handleStartSession(selectedMode)}
+                disabled={creatingSession !== null}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
+              >
+                {creatingSession ? "Creating..." : "Start Session"}
               </button>
             </div>
           </div>

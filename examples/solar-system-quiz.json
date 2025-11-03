@@ -1,0 +1,72 @@
+{
+  "title": "Science Trivia - Solar System",
+  "description": "Test your knowledge about our amazing solar system!",
+  "category": "Science",
+  "isPublic": true,
+  "questions": [
+    {
+      "text": "Which planet is known as the Red Planet?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+      "correctAnswer": "Mars",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "How many planets are in our solar system?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["7", "8", "9", "10"],
+      "correctAnswer": "8",
+      "points": 10,
+      "timeLimit": 10
+    },
+    {
+      "text": "The Sun is a star.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "True",
+      "points": 5,
+      "timeLimit": 10
+    },
+    {
+      "text": "Which planet is the largest in our solar system?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["Saturn", "Neptune", "Jupiter", "Uranus"],
+      "correctAnswer": "Jupiter",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "Earth is the closest planet to the Sun.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "False",
+      "points": 10,
+      "timeLimit": 10
+    },
+    {
+      "text": "Which planet has rings?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["Mars", "Saturn", "Venus", "Mercury"],
+      "correctAnswer": "Saturn",
+      "points": 10,
+      "timeLimit": 15
+    },
+    {
+      "text": "How many moons does Earth have?",
+      "type": "MULTIPLE_CHOICE",
+      "options": ["0", "1", "2", "3"],
+      "correctAnswer": "1",
+      "points": 5,
+      "timeLimit": 10
+    },
+    {
+      "text": "Venus is hotter than Mercury.",
+      "type": "TRUE_FALSE",
+      "options": ["True", "False"],
+      "correctAnswer": "True",
+      "points": 15,
+      "timeLimit": 15
+    }
+  ]
+}
